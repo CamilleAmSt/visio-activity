@@ -1,0 +1,75 @@
+const express = require('express');
+const Base = require('../models/baseSecreta');
+const router = express.Router()
+cons
+
+//criar base secreta
+router.post('/register', async ( req, res) => {
+    const {titulo} = req.body;
+    const {fachada} = req.body;
+    try{       
+        const response = await Base.create(req.body);
+        return res.send ("base cadastrada com sucesso")
+    } catch (err){
+        console.log(err.message)
+        return res.status(400).send({ erro: 'falha no registro'})
+    }
+})
+
+//consultar todas as bases secretas
+router.get("/", async (req, res) => {
+    let results = await Base.find({});
+      
+    res.send(results).status(200);
+  });
+
+  
+//consultar bases secretas pelo filtro
+router.get("/cidade", async (req, res) => {
+  let cidades = await Base.find({}).sort('cidade -_id');
+  res.send(cidades).status(200);
+});
+
+router.get("/titulo", async (req, res) => {
+  let titulos = await Base.find({}).sort('titulo -_id');
+  res.send(titulos).status(200);
+});
+
+router.get("/tecnologia", async (req, res) => {
+  let tecnologia = await Base.find({}).sort('tecnologias -_id');
+  res.send(tecnologia).status(200);
+});
+
+//deletar base secreta
+router.delete("/", async (req, res) => {
+
+    const {titulo} = req.body
+//caso o titulo seja encontrado na base
+    if(await Base.findOne ({titulo})){
+    await Base.deleteOne({titulo})
+    return res.send("base deletada com sucesso")
+    }
+    else{
+      return res.send("falha ao deletar a base, informe  o titulo")
+    }
+})
+
+//atualizar base secreta
+
+router.put("/", async(req, res)=>{
+
+  let baseSelecionada = req.query
+  let dados = req.body
+  
+  
+  try{       
+    collection({Base}).replaceOne(baseSelecionada, dados) //collection não funciona
+    return res.send ("base atualizada com sucesso")
+} catch (err){
+    console.log(err.message)
+    return res.status(400).send({ erro: 'falha na atualização'})
+}
+})
+
+module.exports = (app) => app.use('/auth', router)
+
